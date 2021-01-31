@@ -3,9 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="79256297-133e-40e4-b57b-0f2f82a1a67f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inputs_wider_range_file.txt" beforeDir="false" afterPath="$PROJECT_DIR$/inputs_wider_range_file.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/regressor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/set.txt" beforeDir="false" afterPath="$PROJECT_DIR$/set.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tmp" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -170,13 +169,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/regressor.py</url>
-          <line>263</line>
-          <option name="timeStamp" value="102" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
