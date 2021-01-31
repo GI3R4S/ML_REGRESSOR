@@ -2,16 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79256297-133e-40e4-b57b-0f2f82a1a67f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_in.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_out.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/description_in.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/farm" beforeDir="false" afterPath="$PROJECT_DIR$/farm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_set.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/trainee.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/trainer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/trainer.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/regressor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/set.txt" beforeDir="false" afterPath="$PROJECT_DIR$/set.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,8 +25,9 @@
   </component>
   <component name="ProjectId" id="1lIJnKI3Oh9YSDO2yQUmHMGfDcO" />
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Desktop/ML_TRAINER" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -178,13 +173,8 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/regressor.py</url>
-          <line>202</line>
-          <option name="timeStamp" value="49" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/regressor.py</url>
-          <line>244</line>
-          <option name="timeStamp" value="50" />
+          <line>263</line>
+          <option name="timeStamp" value="102" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
