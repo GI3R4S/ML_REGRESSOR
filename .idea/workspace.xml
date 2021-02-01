@@ -2,14 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79256297-133e-40e4-b57b-0f2f82a1a67f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/mk_regressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/farm" beforeDir="false" afterPath="$PROJECT_DIR$/farm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inputs_training_range.txt" beforeDir="false" afterPath="$PROJECT_DIR$/inputs_training_range.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inputs_wider_range_file.txt" beforeDir="false" afterPath="$PROJECT_DIR$/inputs_wider_range_file.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/regressor.py" beforeDir="false" afterPath="$PROJECT_DIR$/regressor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/set.txt" beforeDir="false" afterPath="$PROJECT_DIR$/set.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/training_data_and_input_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/training_data_and_input_generator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/training_data_output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/training_data_output.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -35,8 +32,13 @@
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Desktop/ML_TRAINER" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\DejF\repos\ML_REGRESSOR" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -50,7 +52,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.regressor">
+  <component name="RunManager" selected="Python.training_data_and_input_generator">
     <configuration name="regresor" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="TRAINER_PYTHON" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -85,7 +87,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/regressor.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="PARAMETERS" value="-t set.txt" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -165,8 +167,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.regressor" />
         <item itemvalue="Python.training_data_and_input_generator" />
+        <item itemvalue="Python.regressor" />
         <item itemvalue="Python.regresor" />
         <item itemvalue="Python.training_data_generator" />
         <item itemvalue="Python.trainer" />
