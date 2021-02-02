@@ -75,6 +75,7 @@ def gradient_descent(train_data_input, train_data_output, coefficients, iteratio
                 gradients[i] = difference * train_data_input[sample][i]
                 coefficients[i] = coefficients[i] - (alpha * gradients[i])
         if check_if_epsilon_reached(prev_gradients, gradients, epsilon_value):
+            print("Hit epsilon at iteration: " + iteration.__str__())
             break
     return coefficients
 

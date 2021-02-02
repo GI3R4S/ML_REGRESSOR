@@ -26,11 +26,11 @@ def get_abs_sum(elements):
 
 
 def normalize_to_1_1(min_a, max_a, y_old):
-    return (((y_old - min_a) / (max_a - min_a)) * (new_max - new_min)) + new_min
+    return (2 * (y_old - min_a) / (max_a -min_a)) - 1
 
 
 def denormalize_from_1_1(min_a, max_a, y_new):
-    return (((y_new - new_min) / (new_max - new_min)) * (max_a - min_a)) + min_a
+    return ((y_new + 1) / 2) * (max_a - min_a) + min_a
 
 
 def get_component_value(exponents, inputs):
@@ -47,6 +47,22 @@ def get_output_value(weights, inputs):
     for i in range(len(weights)):
         value += weights[i] * inputs[i]
     return value
+
+
+def calculate_output_value(input_value, coefficients):
+    value = coefficients[0]
+    for i in range(1, len(coefficients)):
+        value += coefficients[i] * input_value[i]
+    return value
+
+
+def check_if_is_lesser_than_epsilon(list1, list2, epsilon):
+    distance = 0
+    for i in range(len(list1)):
+        distance += abs(list1[i] - list2[i])
+        if distance >= epsilon:
+            return False
+    return True
 
 
 if __name__ == '__main__':
@@ -70,17 +86,17 @@ if __name__ == '__main__':
         BASE_TRAIN_SET.append(train_set_entry)
     train_set_file.close()
 
-    # # loading inputs
-    # INPUT_FROM_STDIN = False
-    # INPUTS = copy.deepcopy(BASE_TRAIN_SET)
-    # for i in range(len(INPUTS)):
-    #     INPUTS[i] = INPUTS[i][:-1]
+    # loading inputs
+    INPUT_FROM_STDIN = False
+    INPUTS = copy.deepcopy(BASE_TRAIN_SET)
+    for i in range(len(INPUTS)):
+        INPUTS[i] = INPUTS[i][:-1]
 
-    INPUT_FROM_STDIN = True
-    stdin_input = list(sys.stdin.read().splitlines())
-    INPUTS = []
-    for line in stdin_input:
-        INPUTS.append([float(item) for item in line.split(' ')])
+    # INPUT_FROM_STDIN = True
+    # stdin_input = list(sys.stdin.read().splitlines())
+    # INPUTS = []
+    # for line in stdin_input:
+    #     INPUTS.append([float(item) for item in line.split(' ')])
 
     # Loading list of minimal and maximum values
     EXPECTED_OUTPUTS = [float(numbers[-1]) for numbers in BASE_TRAIN_SET]
@@ -112,18 +128,19 @@ if __name__ == '__main__':
                                                     BASE_TRAIN_SET[j][k])
 
     # PARAMS START
-    TRAINING_VALIDATION_PAIRS = []
-    NUMBER_OF_CHECKS = 3
-    MAX_NUMBER_OF_ITERATIONS = 4000
-    EPSILON = 1e-9
-    LEARNING_RATE = 0.05
-    MSE_SCORES = {}
+    NUMBER_OF_CHECKS = 4
+    MAX_NUMBER_OF_ITERATIONS = 10000
+    MINIMUM_DERIVATIVE_SUM = 1e-5
+    MINIMUM_DERIVATIVE_DELTA = 1e-6
+    LEARNING_RATE = 0.03
+    DIVISION_PROPORTION = 0.8
 
+    TRAINING_VALIDATION_PAIRS = []
+    MSE_SCORES = {}
     base_train_set_copy = copy.deepcopy(BASE_TRAIN_SET)
     random.shuffle(base_train_set_copy)
 
     # shuffle sets
-    DIVISION_PROPORTION = 0.8
     for i in range(NUMBER_OF_CHECKS):
         random_index = random.uniform(0, len(base_train_set_copy) * DIVISION_PROPORTION)
         current_training_set = []
@@ -141,14 +158,7 @@ if __name__ == '__main__':
     combinations = []
     IS_INVALID = False
     for k in range(1, 9):
-
-        if IS_INVALID:
-            for i in range(k - 1, 9):
-                MSE_SCORES[i] = 9999999
-                # print("Total validation MSE: " + MSE_SCORES[i].__str__())
-            break
-
-        # print("Processing k == " + k.__str__())
+        print("\n\nProcessing k == " + k.__str__())
         arr1 = [i for i in range(0, k + 1)]
 
         # generate combinations of variables
@@ -160,72 +170,85 @@ if __name__ == '__main__':
 
         total_mse = 0
         pair_index = 0
+
+        IS_INVALID = False
+
         for training_part, validation_part in TRAINING_VALIDATION_PAIRS:
-            IS_STAGNANT = False
-            current_iteration = 0
-            best_mse = 10000000000
-            iterations_without_best_mse = 0
-            weights = [random.uniform(-0.1, 0.1) for i in range(len(EXPONENTS))]
+
+            weights = [random.random() for i in range(len(EXPONENTS))]
             derivatives = [0 for i in range(len(EXPONENTS))]
-            weights_len = len(weights)
-            while True:
-                validation_mse = 0
+            derivatives_prev = []
+            IS_STAGNANT = False
+
+            for current_iteration in range(MAX_NUMBER_OF_ITERATIONS):
+                derivatives_prev = derivatives[:]
                 for train_set_entry in training_part:
+
                     adjusted_values = []
                     for exponents in EXPONENTS:
                         adjusted_values.append(get_component_value(exponents, train_set_entry[0:NUMBER_OF_COLUMNS - 1]))
-                    prediction = get_actual_value(weights, adjusted_values)
+
+                    prediction = calculate_output_value(adjusted_values, weights)
                     diff = prediction - train_set_entry[-1]
-                    for i in range(weights_len):
+
+                    for i in range(len(weights)):
                         derivatives[i] = diff * adjusted_values[i]
                         weights[i] -= LEARNING_RATE * derivatives[i]
-                    sum_of_derivatives = get_abs_sum(derivatives)
-                    if sum_of_derivatives <= EPSILON:
-                        IS_STAGNANT = True
-                    if math.isinf(sum_of_derivatives) or math.isnan(sum_of_derivatives):
-                        IS_INVALID = True
 
-                if IS_INVALID:
+                if math.isnan(prediction) or math.isinf(prediction):
+                    IS_INVALID = True
                     break
-                if current_iteration >= MAX_NUMBER_OF_ITERATIONS or IS_STAGNANT:
-                    for validation_entry in validation_part:
-                        adjusted_values_validation = []
-                        for exponents in EXPONENTS:
-                            adjusted_values_validation.append(
-                                get_component_value(exponents, validation_entry[0:NUMBER_OF_COLUMNS - 1]))
-                        prediction = get_actual_value(weights, adjusted_values_validation)
-                        diff = prediction - validation_entry[-1]
-                        validation_mse += (diff * diff)
-                    validation_mse /= len(validation_part)
-                    if math.isinf(validation_mse) or math.isnan(validation_mse):
-                        IS_INVALID = True
+
+                if check_if_is_lesser_than_epsilon(derivatives_prev, derivatives, MINIMUM_DERIVATIVE_DELTA):
+                    IS_STAGNANT = True
+                    print("Got stagnant at iteration: " + current_iteration.__str__())
                     break
-                current_iteration += 1
 
-            # print("Validation MSE: " + validation_mse.__str__())
-            pair_index += 1
-            total_mse += validation_mse
-
+            validation_mse = 0
             if IS_INVALID:
                 # print("Skipping - invalid: " + total_mse.__str__())
                 break
+
+            for validation_entry in validation_part:
+
+                adjusted_values_validation = []
+                for exponents in EXPONENTS:
+                    adjusted_values_validation.append(
+                        get_component_value(exponents, validation_entry[0:NUMBER_OF_COLUMNS - 1]))
+
+                prediction = get_actual_value(adjusted_values_validation, weights)
+                diff = prediction - validation_entry[-1]
+                validation_mse += (diff * diff)
+
+            validation_mse /= len(validation_part)
+
+
+            print("Validation MSE: " + validation_mse.__str__())
+
+            pair_index += 1
+            total_mse += validation_mse
+
             if not len(MSE_SCORES) == 0 and total_mse > min(MSE_SCORES.values()):
-                # print("Skipping - exceeeded MSE: " + total_mse.__str__())
+                print("Skipping - exceeeded MSE: " + total_mse.__str__())
                 total_mse += ((total_mse / pair_index) * (NUMBER_OF_CHECKS - pair_index))
                 break
 
         if IS_INVALID:
-            continue
-        # print("Total validation MSE: " + total_mse.__str__())
+            for i in range(k, 9):
+                MSE_SCORES[i] = 9999999
+                print("Total validation MSE: " + MSE_SCORES[i].__str__())
+            break
+
+        print("Total validation MSE: " + total_mse.__str__())
         MSE_SCORES[k] = total_mse
 
-    # end = time.time()
-    # print("Duration: ")
-    # print(end - start)
+    end = time.time()
+    print("Duration: ")
+    print(end - start)
 
     # BEST_K = (4, 1)
     BEST_K = min(MSE_SCORES.items(), key=lambda t: t[1])
-    # print("Best K: " + BEST_K[0].__str__())
+    print("Best K: " + BEST_K[0].__str__())
 
     # generate combinations of variables
     result_arr = [i for i in range(0, BEST_K[0] + 1)]
