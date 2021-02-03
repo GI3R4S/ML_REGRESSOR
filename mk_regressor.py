@@ -65,6 +65,10 @@ def check_if_epsilon_reached(previous_gradients, actual_gradients, epsilon_value
     return True
 
 
+adjusted_training_inputs_and_outputs = []
+
+
+
 def gradient_descent(train_data_input, train_data_output, coefficients, iterations_number, epsilon_value):
     gradients = [0.0] * (len(train_data_input[0]))
     for iteration in range(1, iterations_number + 1):

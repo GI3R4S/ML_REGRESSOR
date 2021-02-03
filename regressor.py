@@ -6,23 +6,8 @@ import itertools
 import math
 import time
 
-
-def get_actual_value(input, weights):
-    actual_value = weights[0]
-    for i in range(1, len(input)):
-        actual_value += weights[i] * input[i]
-    return actual_value
-
-
 new_max = 1
 new_min = -1
-
-
-def get_abs_sum(elements):
-    sum = 0
-    for element in elements:
-        sum += abs(element)
-    return sum
 
 
 def normalize_to_1_1(min_a, max_a, y_old):
@@ -41,19 +26,11 @@ def get_component_value(exponents, inputs):
     return value
 
 
-def get_output_value(weights, inputs):
-    value = 0
-    assert (len(weights) == len(inputs))
-    for i in range(len(weights)):
-        value += weights[i] * inputs[i]
-    return value
-
-
-def calculate_output_value(input_value, coefficients):
-    value = coefficients[0]
-    for i in range(1, len(coefficients)):
-        value += coefficients[i] * input_value[i]
-    return value
+def get_actual_value(input, weights):
+    actual_value = weights[0]
+    for i in range(1, len(input)):
+        actual_value += weights[i] * input[i]
+    return actual_value
 
 
 def check_if_is_lesser_than_epsilon(list1, list2, epsilon):
@@ -66,11 +43,9 @@ def check_if_is_lesser_than_epsilon(list1, list2, epsilon):
 
 
 if __name__ == '__main__':
-    start = time.time()
     options, values = getopt.getopt(sys.argv[1:], "t:")
     t_option_value = None
 
-    # start = time.time()
     for key, value in options:
         if key == '-t':
             t_option_value = value
@@ -86,17 +61,10 @@ if __name__ == '__main__':
         BASE_TRAIN_SET.append(train_set_entry)
     train_set_file.close()
 
-    # loading inputs
-    INPUT_FROM_STDIN = False
-    INPUTS = copy.deepcopy(BASE_TRAIN_SET)
-    for i in range(len(INPUTS)):
-        INPUTS[i] = INPUTS[i][:-1]
-
-    # INPUT_FROM_STDIN = True
-    # stdin_input = list(sys.stdin.read().splitlines())
-    # INPUTS = []
-    # for line in stdin_input:
-    #     INPUTS.append([float(item) for item in line.split(' ')])
+    std_in_input = list(sys.stdin.read().splitlines())
+    INPUTS = []
+    for line in std_in_input:
+        INPUTS.append([float(item) for item in line.split(' ')])
 
     # Loading list of minimal and maximum values
     EXPECTED_OUTPUTS = [float(numbers[-1]) for numbers in BASE_TRAIN_SET]
@@ -130,10 +98,9 @@ if __name__ == '__main__':
     # PARAMS START
     NUMBER_OF_CHECKS = 4
     MAX_NUMBER_OF_ITERATIONS = 10000
-    MINIMUM_DERIVATIVE_SUM = 1e-5
-    MINIMUM_DERIVATIVE_DELTA = 1e-6
-    LEARNING_RATE = 0.03
-    DIVISION_PROPORTION = 0.8
+    MINIMUM_DERIVATIVE_DELTA = 1e-8
+    LEARNING_RATE = 0.02
+    DIVISION_PROPORTION = 0.9
 
     TRAINING_VALIDATION_PAIRS = []
     MSE_SCORES = {}
@@ -152,16 +119,14 @@ if __name__ == '__main__':
             else:
                 current_training_set.append(base_train_set_copy[j])
 
-        TRAINING_VALIDATION_PAIRS.append((current_training_set, current_validation_set))
+        TRAINING_VALIDATION_PAIRS.append([current_training_set, current_validation_set])
 
     # best k selection start
-    combinations = []
     IS_INVALID = False
     for k in range(1, 9):
-        print("\n\nProcessing k == " + k.__str__())
         arr1 = [i for i in range(0, k + 1)]
 
-        # generate combinations of variables
+        # generate combinations of exponents
         exponents_all = list(itertools.product(arr1, repeat=NUMBER_OF_COLUMNS - 1))
         EXPONENTS = []
         for exponents in exponents_all:
@@ -172,41 +137,44 @@ if __name__ == '__main__':
         pair_index = 0
 
         IS_INVALID = False
-
         for training_part, validation_part in TRAINING_VALIDATION_PAIRS:
 
             weights = [random.random() for i in range(len(EXPONENTS))]
             derivatives = [0 for i in range(len(EXPONENTS))]
             derivatives_prev = []
-            IS_STAGNANT = False
+
+            adjusted_training_inputs_and_outputs = []
+
+            for i in range(len(training_part)):
+                adjusted_values = []
+                for exponents in EXPONENTS:
+                    adjusted_value = get_component_value(exponents, training_part[i][0:NUMBER_OF_COLUMNS - 1])
+                    adjusted_values.append(adjusted_value)
+
+                output = training_part[i][-1]
+                pair = (adjusted_values, output)
+                adjusted_training_inputs_and_outputs.append(pair)
 
             for current_iteration in range(MAX_NUMBER_OF_ITERATIONS):
                 derivatives_prev = derivatives[:]
-                for train_set_entry in training_part:
+                for train_set_entry in adjusted_training_inputs_and_outputs:
 
-                    adjusted_values = []
-                    for exponents in EXPONENTS:
-                        adjusted_values.append(get_component_value(exponents, train_set_entry[0:NUMBER_OF_COLUMNS - 1]))
-
-                    prediction = calculate_output_value(adjusted_values, weights)
-                    diff = prediction - train_set_entry[-1]
+                    prediction = get_actual_value(train_set_entry[0], weights)
+                    diff = prediction - train_set_entry[1]
 
                     for i in range(len(weights)):
-                        derivatives[i] = diff * adjusted_values[i]
+                        derivatives[i] = diff * train_set_entry[0][i]
                         weights[i] -= LEARNING_RATE * derivatives[i]
 
-                if math.isnan(prediction) or math.isinf(prediction):
+                if math.isnan(diff) or math.isinf(diff):
                     IS_INVALID = True
                     break
 
                 if check_if_is_lesser_than_epsilon(derivatives_prev, derivatives, MINIMUM_DERIVATIVE_DELTA):
-                    IS_STAGNANT = True
-                    print("Got stagnant at iteration: " + current_iteration.__str__())
                     break
 
             validation_mse = 0
             if IS_INVALID:
-                # print("Skipping - invalid: " + total_mse.__str__())
                 break
 
             for validation_entry in validation_part:
@@ -221,36 +189,28 @@ if __name__ == '__main__':
                 validation_mse += (diff * diff)
 
             validation_mse /= len(validation_part)
-
-
-            print("Validation MSE: " + validation_mse.__str__())
-
             pair_index += 1
             total_mse += validation_mse
 
             if not len(MSE_SCORES) == 0 and total_mse > min(MSE_SCORES.values()):
-                print("Skipping - exceeeded MSE: " + total_mse.__str__())
                 total_mse += ((total_mse / pair_index) * (NUMBER_OF_CHECKS - pair_index))
                 break
 
         if IS_INVALID:
             for i in range(k, 9):
                 MSE_SCORES[i] = 9999999
-                print("Total validation MSE: " + MSE_SCORES[i].__str__())
             break
 
-        print("Total validation MSE: " + total_mse.__str__())
         MSE_SCORES[k] = total_mse
 
-    end = time.time()
-    print("Duration: ")
-    print(end - start)
-
-    # BEST_K = (4, 1)
     BEST_K = min(MSE_SCORES.items(), key=lambda t: t[1])
-    print("Best K: " + BEST_K[0].__str__())
 
-    # generate combinations of variables
+    # =======================================================================================
+    # =======================================================================================
+    # =======================================================================================
+
+    # generate combinations of exponents
+    final_training_start = time.time()
     result_arr = [i for i in range(0, BEST_K[0] + 1)]
     result_exponents_all = list(itertools.product(result_arr, repeat=NUMBER_OF_COLUMNS - 1))
     RESULT_EXPONENTS = []
@@ -260,40 +220,52 @@ if __name__ == '__main__':
             RESULT_EXPONENTS.append(exponents)
 
     # final model training parameters
-    RESULT_MAX_ITERATIONS = 25000
-    RESULT_LEARNING_RATE = 0.005
-    RESULT_EPSILON = 1e-7
-    RESULT_CURRENT_ITERATION = 0
-    RESULT_WEIGHTS = [random.uniform(-0.1, 0.1) for i in range(len(RESULT_EXPONENTS))]
-    ITERATIONS_WITHOUT_BETTER_MSE = 0
+    RESULT_LEARNING_RATE = 0.033
+    RESULT_MAX_ITERATIONS = 150000
+    RESULT_EPSILON = 1e-10
+    RESULT_MIN_MSE = 1e-10
+    RESULT_WEIGHTS = [random.random() for i in range(len(RESULT_EXPONENTS))]
     BEST_MSE = 1000000
     BEST_MSE_WEIGHTS = []
-    while True:
-        result_mse = 0
-        for train_set_entry in BASE_TRAIN_SET:
-            adjusted_values = []
-            for exponents in RESULT_EXPONENTS:
-                adjusted_values.append(get_component_value(exponents, train_set_entry[:-1]))
-            prediction = get_actual_value(RESULT_WEIGHTS, adjusted_values)
-            diff = prediction - train_set_entry[-1]
-            result_mse += (diff * diff)
-            for i in range(len(RESULT_WEIGHTS)):
-                derivative = diff * adjusted_values[i]
-                RESULT_WEIGHTS[i] -= (RESULT_LEARNING_RATE * derivative)
+    RESULT_CURRENT_ITERATION = 0
 
-        result_mse /= len(BASE_TRAIN_SET)
-        if result_mse < BEST_MSE:
-            BEST_MSE_WEIGHTS = RESULT_WEIGHTS
-            ITERATIONS_WITHOUT_BETTER_MSE = 0
-        else:
-            ITERATIONS_WITHOUT_BETTER_MSE += 1
-        if RESULT_CURRENT_ITERATION >= RESULT_MAX_ITERATIONS or result_mse < RESULT_EPSILON or (
-                ITERATIONS_WITHOUT_BETTER_MSE >= RESULT_MAX_ITERATIONS * 0.1):
-            break
+    adjusted_result_inputs_and_outputs = []
+
+    for i in range(len(BASE_TRAIN_SET)):
+        adjusted_values = []
+        for exponents in RESULT_EXPONENTS:
+            adjusted_value = get_component_value(exponents, BASE_TRAIN_SET[i][0:NUMBER_OF_COLUMNS - 1])
+            adjusted_values.append(adjusted_value)
+
+        output = BASE_TRAIN_SET[i][-1]
+        pair = (adjusted_values, output)
+        adjusted_result_inputs_and_outputs.append(pair)
+
+    for i in range(RESULT_MAX_ITERATIONS):
         RESULT_CURRENT_ITERATION += 1
+        result_mse = 0
+        result_derivatives = [0.0] * len(RESULT_WEIGHTS)
+        result_derivatives_prev = result_derivatives[:]
+        for train_set_entry in adjusted_result_inputs_and_outputs:
 
-    # print("Result MSE: " + result_mse.__str__())
-    # print("RESULT_CURRENT_ITERATION: " + RESULT_CURRENT_ITERATION.__str__())
+            prediction = get_actual_value(train_set_entry[0], RESULT_WEIGHTS)
+            diff = prediction - train_set_entry[1]
+            result_mse += (diff * diff)
+
+            for j in range(len(RESULT_WEIGHTS)):
+                result_derivatives[j] = diff * train_set_entry[0][j]
+                RESULT_WEIGHTS[j] -= (RESULT_LEARNING_RATE * result_derivatives[j])
+
+        result_mse /= len(adjusted_result_inputs_and_outputs)
+
+        if result_mse < BEST_MSE:
+            BEST_MSE = result_mse
+            BEST_MSE_WEIGHTS = RESULT_WEIGHTS
+            if BEST_MSE <= RESULT_MIN_MSE:
+                break
+
+        if check_if_is_lesser_than_epsilon(result_derivatives, result_derivatives_prev, RESULT_EPSILON):
+            break
 
     # Loading list of minimal and maximum values
     INPUTS_MIN_MAXS = []
@@ -324,14 +296,10 @@ if __name__ == '__main__':
         adjusted_values = []
         for exponents in RESULT_EXPONENTS:
             adjusted_values.append(get_component_value(exponents, input))
-        prediction = get_actual_value(BEST_MSE_WEIGHTS, adjusted_values)
+        prediction = get_actual_value(adjusted_values, BEST_MSE_WEIGHTS)
         predictions.append(prediction)
 
     for i in range(len(predictions)):
         denormalized_value = denormalize_from_1_1(TRAINING_SET_MIN_MAXS[-1][0], TRAINING_SET_MIN_MAXS[-1][1],
                                                   predictions[i])
         print(denormalized_value)
-
-    end = time.time()
-    print("DURATION")
-    print(end - start)
